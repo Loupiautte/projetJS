@@ -6,6 +6,7 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "ejs": "^2.5.9",
     "express": "~4.16.0"
   }
 }
