@@ -1,24 +1,30 @@
 var express = require('express');
-var bodyParser = require('body-parser'); // Charge le middleware de gestion des paramètres
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
-
 var app = express();
+var bodyParser = require('body-parser'); // Charge le middleware de gestion des paramètres
+var database	= require('./database.js');
 
-//Rendu en screencast
-
-var taches = [[1,'tache_1',new Date('1995-12-17T03:24:00'),new Date('1996-12-17T03:24:00'), 'En cours', 'tag'],'tache_2','tache_3']
+app.use(bodyParser.json());
 
 app.get('/hello', function (req, res) {
-    res.send("hello");
+    const test = database.hello();
+    res.send(test);
+})
+
+app.get('/todo', function (req, res) {
+    res.header("Content-Type",'application/json');
+    const tasksList = database.getAllTasks();
+    res.send(JSON.stringify(tasksList));
 })
 
 app.get('/todo/:id', function (req, res) {
     res.header("Content-Type",'application/json');
-    res.send(JSON.stringify(taches));
+    var task = database.getTask(req.params.id);
+    res.send(task);
 })
 
-app.post('/todo/', function (req, res) {
 
+app.post('/todo/:id', function (req, res) {
+    console.log(req.body.test);
 })
 
 app.delete('/todo/id', function (req, res) {
