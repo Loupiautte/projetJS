@@ -22,7 +22,22 @@ function getTask(id){
 }
 
 function updateTask(id, body){
+    //TODO Vérifier le body
     taskList[id] = body;
+    return 200;
+}
+
+function deleteTask(id){
+    //TODO
+    delete taskList[id];
+    return 200;
+}
+
+function deleteAllTasks(){
+    for(var i= 0; i < taskList.length; i++)
+    {
+        delete taskList[i];
+    }
     return 200;
 }
 
@@ -30,3 +45,5 @@ module.exports.hello = hello;
 module.exports.getAllTasks = getAllTasks;
 module.exports.getTask = getTask;
 module.exports.updateTask = updateTask;
+module.exports.deleteTask = deleteTask;
+module.exports.deleteAllTasks = deleteAllTasks;
