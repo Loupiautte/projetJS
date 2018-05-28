@@ -1,8 +1,12 @@
+const path 			= require('path');
+
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser'); // Charge le middleware de gestion des paramètres
 var database	= require('./database.js');
 
+
+app.use(express.static(path.join(__dirname, 'client')));
 
 app.use(bodyParser.urlencoded({
     extended: true
@@ -10,10 +14,15 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 
+
 app.get('/hello', function (req, res) {
     console.log("Hello !");
     const test = database.hello();
     res.send(test);
+})
+
+app.get('/', function(req, res) {
+    res.sendFile(__dirname + '/client/index.html');
 })
 
 app.get('/todo', function (req, res) {
