@@ -1,49 +1,117 @@
-var taskList = [];
+const dbName = 'todo';
+const mongoClient = require('mongodb').MongoClient;
 
-taskList[2] = {
-    "id": 2,
-    "title": "L'aile ou la cuisse",
-    "dateBegin": "02/01/2016",
-    "dateEnd": "02/01/2017",
-    "statut": "En cours",
-    "tags": "Humour"
-};
+// Allow to create a connection for each query
+let executeQuery = function (callback) {
+    mongoClient.connect('mongodb://localhost/' + dbName, function (err, client) {
+        if (err)
+            throw err;
+        // Call lambda function pass in parameter
+        callback(client);
+        client.close();
+    });
+}
 
-function hello() {
-    return 'hello';
+function connectionTest() {
+    return new Promise(function (resolve, reject) {
+        executeQuery(function (client) {
+            if(!client) {
+                resolve(false);
+            }
+            resolve(true);
+        })
+    })
 }
 
 function getAllTasks() {
-    return taskList;
+    return new Promise(function (resolve, reject) {
+        executeQuery(function (client) {
+            let db = client.db(dbName);
+            db.collection(dbName).find({}).toArray(function (findErr, result) {
+                if (findErr)
+                    throw findErr;
+                resolve(result);
+            });
+        });
+    });
 }
 
-function getTask(id){
-    return taskList[id];
+function addTask(task) {
+    return new Promise(function (resolve, reject) {
+        executeQuery(function (client) {
+            console.log(task);
+            let db = client.db(dbName);
+            console.log(task);
+            db.collection(dbName).insertOne({
+                    'title': task.title,
+                    'dateBegin': task.dateBegin,
+                    'dateEnd': task.dateEnd,
+                    'statut': task.statut,
+                    'tags': task.tags,
+                    'completed': false
+                },
+                // Callback function
+                function (err, inserted) {
+                    resolve(inserted.insertedId);
+                }
+            );
+        });
+    });
 }
 
-function updateTask(id, body){
-    //TODO Vérifier le body
-    taskList[id] = body;
-    return 200;
+function removeCompletedTasks() {
+    return new Promise(function (resolve, reject) {
+        executeQuery(function (client) {
+            let db = client.db(dbName);
+            db.collection(dbName).remove({completed: true}, true);
+            resolve();
+        });
+    });
 }
 
-function deleteTask(id){
-    //TODO
-    delete taskList[id];
-    return 200;
+function updateTask(id, task) {
+    return new Promise(function (resolve, reject) {
+        executeQuery(function (client) {
+            let db = client.db(dbName);
+            db.collection(dbName).updateOne({'_id': id}, {$set: {
+                    'title': task.title,
+                    'dateBegin': task.dateBegin,
+                    'dateEnd': task.dateEnd,
+                    'statut': task.statut,
+                    'tags': task.tags,
+                    'completed': false
+                }});
+            resolve();
+        });
+    });
 }
 
-function deleteAllTasks(){
-    for(var i= 0; i < taskList.length; i++)
-    {
-        delete taskList[i];
-    }
-    return 200;
+function removeTask(id){
+    return new Promise(function (resolve, reject) {
+        executeQuery(function (client) {
+            let db = client.db(dbName);
+            db.collection(dbName).remove({'_id': id});
+            resolve();
+        });
+    });
 }
 
-module.exports.hello = hello;
+function removeAllTasks() {
+    return new Promise(function (resolve, reject) {
+        executeQuery(function (client) {
+            let db = client.db(dbName);
+            db.collection(dbName).remove({});
+            resolve();
+        });
+    });
+}
+
+// Functions to export
+module.exports.connectionTest = connectionTest;
 module.exports.getAllTasks = getAllTasks;
-module.exports.getTask = getTask;
+module.exports.executeQuery = executeQuery;
+module.exports.addTask = addTask;
+module.exports.removeCompletedTasks = removeCompletedTasks;
 module.exports.updateTask = updateTask;
-module.exports.deleteTask = deleteTask;
-module.exports.deleteAllTasks = deleteAllTasks;
+module.exports.removeTask = removeTask;
+module.exports.removeAllTasks = removeAllTasks;

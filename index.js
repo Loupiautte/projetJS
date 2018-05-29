@@ -1,9 +1,10 @@
-const path 			= require('path');
-
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser'); // Charge le middleware de gestion des paramètres
-var database	= require('./database.js');
+const path = require('path');
+const ObjectId = require('mongodb').ObjectID;
+let express = require('express');
+let app = express();
+let bodyParser = require('body-parser');
+let database = require('./database.js');
+let Task = require('./task.js');
 
 
 app.use(express.static(path.join(__dirname, 'client')));
@@ -14,49 +15,52 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 
-
-app.get('/hello', function (req, res) {
+app.get('/databaseConnectionTest', function (req, res) {
     console.log("Hello !");
-    const test = database.hello();
-    res.send(test);
-})
+    database.connectionTest();
+    res.sendStatus(200);
+});
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
-})
+});
 
-app.get('/todo', function (req, res) {
-    console.log("Envoi de toutes les tâches");
-    res.header("Content-Type",'application/json');
-    const tasksList = database.getAllTasks();
-    res.send(JSON.stringify(tasksList));
-})
+app.get('/todo', async function (req, res) {
+    console.log("Récupération de toutes les tâches")
+    let tasks = await database.getAllTasks();
+    res.send(tasks);
+});
 
-app.get('/todo/:id', function (req, res) {
+app.get('/todo/:id', async function (req, res) {
     console.log("Envoi de la tâche : " + req.params.id);
-    res.header("Content-Type",'application/json');
-    var task = database.getTask(req.params.id);
+    res.header("Content-Type", 'application/json');
+    let task = await database.getTask(req.params.id);
     res.send(task);
-})
+});
 
 
-app.post('/todo/:id', function (req, res) {
+app.post('/todo/:id', async function (req, res) {
     console.log("Ajout de la tâche : " + req.params.id);
-    code = database.updateTask(req.params.id, req.body);
-    res.status(code).send();
-})
-
-app.delete('/todo/:id', function (req, res) {
-    console.log("Suppression de la tâche : " + req.params.id);
-    code = database.deleteTask(req.params.id);
-    res.status(code).send();
-})
+    let task = parseBodyTask(req.body);
+    let idInserted = await database.addTask(task);
+    res.send(idInserted);
+});
 
 app.delete('/todo', function (req, res) {
     console.log("Suppression de toutes les tâches");
-    code = database.deleteAllTasks();
-    res.status(code).send();
-})
+    database.removeAllTasks();
+    res.sendStatus(200);
+});
 
+app.delete('/todo/:id', function (req, res) {
+    let id = new ObjectId(req.params.id);
+    console.log("Suppression de la tâche : " + req.params.id);
+    database.removeTask(id);
+    res.sendStatus(200);
+});
+
+function parseBodyTask(body) {
+    return new Task(body.title, body.dateBegin, body.dateEnd, body.statut, body.tags);
+}
 
 app.listen(8080);
