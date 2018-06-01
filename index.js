@@ -31,14 +31,6 @@ app.get('/todo', async function (req, res) {
     res.send(tasks);
 });
 
-app.get('/todo/:id', async function (req, res) {
-    console.log("Envoi de la tâche : " + req.params.id);
-    res.header("Content-Type", 'application/json');
-    let task = await database.getTask(req.params.id);
-    res.send(task);
-});
-
-
 app.post('/todo', async function (req, res) {
     console.log("Ajout d'une tâche : ");
     let task = parseBodyTask(req.body);

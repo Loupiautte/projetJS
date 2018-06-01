@@ -41,7 +41,6 @@ function addTask(task) {
         executeQuery(function (client) {
             console.log(task);
             let db = client.db(dbName);
-            console.log(task);
             db.collection(dbName).insertOne({
                     'title': task.title,
                     'dateBegin': task.dateBegin,
@@ -55,19 +54,6 @@ function addTask(task) {
                     resolve(inserted.insertedId);
                 }
             );
-        });
-    });
-}
-
-function getTask(id){
-    return new Promise(function (resolve, reject) {
-        executeQuery(function (client) {
-            let db = client.db(dbName);
-            db.collection(dbName).find({'_id': id}).toArray(function (findErr, result) {
-                if (findErr)
-                    throw findErr;
-                resolve(result);
-            });
         });
     });
 }
@@ -121,7 +107,6 @@ function removeAllTasks() {
 
 // Functions to export
 module.exports.connectionTest = connectionTest;
-module.exports.getTask = getTask;
 module.exports.getAllTasks = getAllTasks;
 module.exports.executeQuery = executeQuery;
 module.exports.addTask = addTask;
