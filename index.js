@@ -39,8 +39,8 @@ app.get('/todo/:id', async function (req, res) {
 });
 
 
-app.post('/todo/:id', async function (req, res) {
-    console.log("Ajout de la tâche : " + req.params.id);
+app.post('/todo', async function (req, res) {
+    console.log("Ajout d'une tâche : ");
     let task = parseBodyTask(req.body);
     let idInserted = await database.addTask(task);
     res.send(idInserted);

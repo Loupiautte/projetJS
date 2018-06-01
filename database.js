@@ -59,6 +59,19 @@ function addTask(task) {
     });
 }
 
+function getTask(id){
+    return new Promise(function (resolve, reject) {
+        executeQuery(function (client) {
+            let db = client.db(dbName);
+            db.collection(dbName).find({'_id': id}).toArray(function (findErr, result) {
+                if (findErr)
+                    throw findErr;
+                resolve(result);
+            });
+        });
+    });
+}
+
 function removeCompletedTasks() {
     return new Promise(function (resolve, reject) {
         executeQuery(function (client) {
@@ -108,6 +121,7 @@ function removeAllTasks() {
 
 // Functions to export
 module.exports.connectionTest = connectionTest;
+module.exports.getTask = getTask;
 module.exports.getAllTasks = getAllTasks;
 module.exports.executeQuery = executeQuery;
 module.exports.addTask = addTask;

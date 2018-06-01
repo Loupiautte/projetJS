@@ -4,6 +4,7 @@ You can :
 - Get all your tasks as a list
 - Add a task
 - Check a task
+- Remove a task
 - Remove all completed tasks
 
 ### Communication
